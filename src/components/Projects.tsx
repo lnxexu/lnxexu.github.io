@@ -13,6 +13,8 @@ export function Projects() {
     name: string;
     description: string | null;
     language: string | null;
+    languages?: string[];
+    languages_url?: string;
     stargazers_count: number;
     forks_count: number;
     html_url: string;
@@ -29,7 +31,7 @@ export function Projects() {
   const [activeLightboxImages, setActiveLightboxImages] = useState<{ src: string; alt: string }[]>([]);
 
   useEffect(() => {
-    const cacheKey = "gh_repos_lnxexu";
+    const cacheKey = "gh_repos_lnxexu_v2";
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       try {
@@ -58,8 +60,40 @@ export function Projects() {
         const filtered = data
           .filter((r) => !r.archived && !r.fork)
           .slice(0, 9);
-        setRepos(filtered);
-        sessionStorage.setItem(cacheKey, JSON.stringify(filtered));
+
+        const reposWithLanguages = await Promise.all(
+          filtered.map(async (repo) => {
+            const fallback = repo.language ? [repo.language] : [];
+
+            if (!repo.languages_url) {
+              return { ...repo, languages: fallback.slice(0, 3) };
+            }
+
+            try {
+              const languagesRes = await fetch(repo.languages_url, {
+                headers,
+                signal: controller.signal,
+              });
+              if (!languagesRes.ok) {
+                return { ...repo, languages: fallback.slice(0, 3) };
+              }
+
+              const languageMap = (await languagesRes.json()) as Record<string, number>;
+              const topLanguages = Object.keys(languageMap).slice(0, 3);
+
+              return {
+                ...repo,
+                languages: topLanguages.length > 0 ? topLanguages : fallback.slice(0, 3),
+              };
+            } catch {
+              return { ...repo, languages: fallback.slice(0, 3) };
+            }
+          })
+        );
+
+        if (controller.signal.aborted) return;
+        setRepos(reposWithLanguages);
+        sessionStorage.setItem(cacheKey, JSON.stringify(reposWithLanguages));
       } catch (e: any) {
         if (e?.name !== "AbortError") {
           setReposError(
@@ -84,6 +118,15 @@ export function Projects() {
     (r) => !featuredRepoIds.has(r.id)
   );
 
+  const getRepoLanguages = (repo: Repo) =>
+    (
+      repo.languages && repo.languages.length > 0
+        ? repo.languages
+        : repo.language
+          ? [repo.language]
+          : []
+    ).slice(0, 3);
+
   const uvtImages = [
     { src: "/uvt/login.png", alt: "UVT Login" },
     { src: "/uvt/dashboard.png", alt: "UVT Dashboard" },
@@ -102,6 +145,17 @@ export function Projects() {
     { src: "/togetha/ai-chatbot.png", alt: "Togetha AI Chatbot" },
     { src: "/togetha/note-taking.png", alt: "Togetha Note Taking" },
     { src: "/togetha/settings.png", alt: "Togetha Profile" },
+  ];
+
+  const spotifyBootlegImages = [
+    { src: "/spotifyBootleg/login.png", alt: "SpotifyBootleg Login" },
+    { src: "/spotifyBootleg/home.png", alt: "SpotifyBootleg Home" },
+    { src: "/spotifyBootleg/artist.png", alt: "SpotifyBootleg Artist Page" },
+    { src: "/spotifyBootleg/player.png", alt: "SpotifyBootleg Player" },
+    { src: "/spotifyBootleg/search.png", alt: "SpotifyBootleg Search" },
+    { src: "/spotifyBootleg/playlist.png", alt: "SpotifyBootleg Playlist" },
+    { src: "/spotifyBootleg/myplaylist.png", alt: "SpotifyBootleg My Playlist" },
+    { src: "/spotifyBootleg/miscellaneous.png", alt: "SpotifyBootleg Side Menu" },
   ];
 
   const openPreview = (
@@ -283,6 +337,12 @@ export function Projects() {
                     interval={2000}
                     onImageClick={(idx) => openPreview(togethaImages, idx)}
                   />
+                ) : repo.name.toLowerCase() === "spotifybootleg" ? (
+                  <ShowcaseCarousel
+                    images={spotifyBootlegImages}
+                    interval={2000}
+                    onImageClick={(idx) => openPreview(spotifyBootlegImages, idx)}
+                  />
                 ) : (
                   <div className="relative overflow-hidden">
                     <div className="w-full h-48 bg-muted/20 flex items-center justify-center">
@@ -325,11 +385,11 @@ export function Projects() {
                     {repo.description || "No description provided."}
                   </p>
                   <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-muted-foreground">
-                    {repo.language && (
-                      <Badge variant="outline" className="text-xs">
-                        {repo.language}
+                    {getRepoLanguages(repo).map((language, idx) => (
+                      <Badge key={`${repo.id}-${language}-${idx}`} variant="outline" className="text-xs">
+                        {language}
                       </Badge>
-                    )}
+                    ))}
                     <div className="flex items-center gap-1">
                       <Star className="h-3.5 w-3.5" />
                       <span>{repo.stargazers_count}</span>
@@ -405,11 +465,11 @@ export function Projects() {
                       {repo.description || "No description provided."}
                     </p>
                     <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-muted-foreground">
-                      {repo.language && (
-                        <Badge variant="outline" className="text-xs">
-                          {repo.language}
+                      {getRepoLanguages(repo).map((language, idx) => (
+                        <Badge key={`${repo.id}-${language}-${idx}`} variant="outline" className="text-xs">
+                          {language}
                         </Badge>
-                      )}
+                      ))}
                       <div className="flex items-center gap-1">
                         <Star className="h-3.5 w-3.5" />
                         <span>{repo.stargazers_count}</span>
