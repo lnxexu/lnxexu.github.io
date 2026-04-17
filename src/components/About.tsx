@@ -31,8 +31,8 @@ export function About() {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl mb-4">About Me</h2>
           <p className="text-muted-foreground max-w-3xl mx-auto">
-            I'm a passionate developer with over 5 years of experience building web applications 
-            and solving complex technical challenges. I love turning ideas into reality through code.
+            I'm Kobe J. Corpuz, a developer with over 5 years of experience building web and mobile applications, 
+            and solving complex technical challenges.
           </p>
         </div>
 

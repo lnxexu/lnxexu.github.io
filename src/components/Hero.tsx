@@ -28,7 +28,7 @@ export function Hero() {
             />
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl mb-6 bg-linear-to-r from-foreground to-muted-foreground bg-clip-text">
             Full Stack Developer
           </h1>
           
@@ -39,7 +39,7 @@ export function Hero() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button size="lg" className="px-8">
+            <Button asChild size="lg" className="px-8">
               <a href="#contact" className="flex items-center gap-2" onClick={e => handleSmoothScroll(e, '#contact')}>
                 Get In Touch
               </a>

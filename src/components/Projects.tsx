@@ -1,38 +1,11 @@
 import { useEffect, useState } from "react";
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
 import { ExternalLink, Github, Star, GitFork } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselApi } from "./ui/carousel";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-
-// Add CSS animations as a style block
-const animationStyles = `
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
-  @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  @keyframes slideInLeft {
-    from { opacity: 0; transform: translateY(-50%) translateX(-20px); }
-    to { opacity: 1; transform: translateY(-50%) translateX(0); }
-  }
-  @keyframes slideInRight {
-    from { opacity: 0; transform: translateY(-50%) translateX(20px); }
-    to { opacity: 1; transform: translateY(-50%) translateX(0); }
-  }
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
-`;
 
 export function Projects() {
   type Repo = {
@@ -52,8 +25,8 @@ export function Projects() {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [loadingRepos, setLoadingRepos] = useState(true);
   const [reposError, setReposError] = useState<string | null>(null);
-  // For smooth exit transition
-  const [exiting, setExiting] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(-1);
+  const [activeLightboxImages, setActiveLightboxImages] = useState<{ src: string; alt: string }[]>([]);
 
   useEffect(() => {
     const cacheKey = "gh_repos_lnxexu";
@@ -105,8 +78,10 @@ export function Projects() {
   const highlightedRepos = highlightNames
     .map((n) => repos.find((r) => r.name.toLowerCase() === n))
     .filter(Boolean) as Repo[];
+  const featuredRepos = highlightedRepos.length > 0 ? highlightedRepos : repos.slice(0, 3);
+  const featuredRepoIds = new Set(featuredRepos.map((repo) => repo.id));
   const otherRepos = repos.filter(
-    (r) => !highlightNames.includes(r.name.toLowerCase())
+    (r) => !featuredRepoIds.has(r.id)
   );
 
   const uvtImages = [
@@ -129,37 +104,13 @@ export function Projects() {
     { src: "/togetha/settings.png", alt: "Togetha Profile" },
   ];
 
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxImages, setLightboxImages] = useState<
-    { src: string; alt: string }[] | null
-  >(null);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [lightboxApi, setLightboxApi] = useState<CarouselApi | null>(null);
-
   const openPreview = (
     images: { src: string; alt: string }[],
     startIndex: number,
   ) => {
-    setLightboxImages(images);
+    setActiveLightboxImages(images);
     setLightboxIndex(startIndex);
-    setLightboxOpen(true);
-    setExiting(false);
   };
-
-  useEffect(() => {
-    if (!lightboxApi) return;
-    
-    const onSelect = () => {
-      setLightboxIndex(lightboxApi.selectedScrollSnap());
-    };
-    
-    lightboxApi.on("select", onSelect);
-    onSelect();
-    
-    return () => {
-      lightboxApi.off("select", onSelect);
-    };
-  }, [lightboxApi]);
 
   function ShowcaseCarousel({
     images,
@@ -283,241 +234,30 @@ export function Projects() {
     );
   }
   
-  const projectsData: {
-    featured: boolean;
-    image: string;
-    alt: string;
-    title: string;
-    description: string;
-    demo: string;
-    github: string;
-    technologies: string[];
-  }[] = [];
-  const featuredProjects = projectsData.filter((project) => project.featured);
-  const otherProjects = projectsData.filter((project) => !project.featured);
-
   return (
     <>
-      {/* Inject animation styles */}
-      <style>{animationStyles}</style>
       <section id="projects" className="py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {lightboxImages && lightboxOpen && (
-          <div 
-            className={`fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center min-h-screen transition-all duration-300 ease-in-out animate-in fade-in ${exiting ? 'animate-out fade-out' : ''}`}
-            style={{ 
-              zIndex: 2147483647, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              minHeight: '100vh',
-              animation: exiting ? 'fadeOut 0.3s ease-in-out' : 'fadeIn 0.3s ease-in-out'
+        <Lightbox
+            open={lightboxIndex >= 0}
+            close={() => setLightboxIndex(-1)}
+            index={lightboxIndex}
+            slides={activeLightboxImages}
+            plugins={[Zoom]}
+            animation={{
+              fade: 250,
+              swipe: 300,
             }}
-            onClick={() => {
-              setExiting(true);
-              setTimeout(() => setLightboxOpen(false), 300);
+            carousel={{
+              finite: activeLightboxImages.length <= 5,
             }}
-          >
-            {/* Close button - High contrast */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setExiting(true);
-                setTimeout(() => setLightboxOpen(false), 300);
-              }}
-              style={{ 
-                zIndex: 2147483647, 
-                position: 'fixed', 
-                top: 24, 
-                right: 24,
-                animation: 'fadeIn 0.4s ease-in-out 0.1s both'
-              }}
-              className="bg-white text-black hover:bg-gray-200 transition-all duration-200 hover:scale-110 rounded-full p-2 shadow-2xl border border-black"
-              aria-label="Close preview"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="black"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
-            {/* Image counter / Pagination indicator */}
-            <div style={{ 
-              zIndex: 2147483646, 
-              position: 'fixed', 
-              top: 24, 
-              left: '50%', 
-              transform: 'translateX(-50%)',
-              animation: 'fadeIn 0.4s ease-in-out 0.2s both'
-            }} className="text-black text-base font-medium bg-white px-6 py-2.5 rounded-full shadow-lg border border-black transition-all duration-300">
-              {lightboxIndex + 1} / {lightboxImages.length}
-            </div>
-
-            {/* Carousel container */}
-            <div 
-              className="relative w-full h-full flex items-center justify-center min-h-screen"
-              style={{ 
-                zIndex: 2147483645, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                minHeight: '100vh',
-                animation: 'scaleIn 0.4s ease-in-out 0.1s both'
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Carousel
-                opts={{ loop: true, startIndex: lightboxIndex }}
-                className="w-full h-full flex items-center justify-center transition-all duration-300"
-                setApi={setLightboxApi}
-              >
-                <CarouselContent className="h-full transition-transform duration-500 ease-in-out">
-                  {lightboxImages.map((img, i) => (
-                    <CarouselItem
-                      key={i}
-                      className="w-full h-full flex items-center justify-center p-8 transition-all duration-300"
-                    >
-                      <ImageWithFallback
-                        src={img.src}
-                        alt={img.alt}
-                        className="object-contain transition-all duration-300 ease-in-out"
-                        style={{
-                          maxWidth: 'calc(100vw - 96px)',
-                          maxHeight: 'calc(100vh - 96px)',
-                          width: 'auto',
-                          height: 'auto',
-                          display: 'block',
-                          margin: '0 auto',
-                          background: 'transparent',
-                          opacity: i === lightboxIndex ? 1 : 0.7,
-                          transform: i === lightboxIndex ? 'scale(1)' : 'scale(0.95)'
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                
-                {/* Navigation buttons - High contrast */}
-                {lightboxImages.length > 1 && (
-                  <>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        lightboxApi?.scrollPrev();
-                      }}
-                      style={{ 
-                        zIndex: 2147483646, 
-                        position: 'fixed', 
-                        left: 24, 
-                        top: '50%', 
-                        transform: 'translateY(-50%)',
-                        animation: 'slideInLeft 0.4s ease-in-out 0.3s both'
-                      }}
-                      className="bg-white text-black hover:bg-gray-200 p-4 rounded-full transition-all duration-200 hover:scale-110 shadow-2xl border border-black"
-                      aria-label="Previous image"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="32"
-                        height="32"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="black"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="15 18 9 12 15 6" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        lightboxApi?.scrollNext();
-                      }}
-                      style={{ 
-                        zIndex: 2147483646, 
-                        position: 'fixed', 
-                        right: 24, 
-                        top: '50%', 
-                        transform: 'translateY(-50%)',
-                        animation: 'slideInRight 0.4s ease-in-out 0.3s both'
-                      }}
-                      className="bg-white text-black hover:bg-gray-200 p-4 rounded-full transition-all duration-200 hover:scale-110 shadow-2xl border border-black"
-                      aria-label="Next image"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="32"
-                        height="32"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="black"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="9 18 15 12 9 6" />
-                      </svg>
-                    </button>
-                  </>
-                )}
-              </Carousel>
-
-              {/* Pagination dots - High contrast */}
-              {lightboxImages.length > 1 && (
-                <div style={{ 
-                  zIndex: 2147483646, 
-                  position: 'fixed', 
-                  bottom: 80, 
-                  left: '50%', 
-                  transform: 'translateX(-50%)',
-                  animation: 'fadeInUp 0.4s ease-in-out 0.4s both'
-                }} className="flex gap-2">
-                  {lightboxImages.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        lightboxApi?.scrollTo(idx);
-                      }}
-                      className={`transition-all duration-300 border border-black ${
-                        idx === lightboxIndex
-                          ? "w-8 h-2 bg-white transform scale-110"
-                          : "w-2 h-2 bg-white/50 hover:bg-white/75 hover:scale-125"
-                      } rounded-full`}
-                      aria-label={`Go to image ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Caption */}
-              <div style={{ 
-                zIndex: 2147483646, 
-                position: 'fixed', 
-                bottom: 24, 
-                left: '50%', 
-                padding: '0 1rem', 
-                transform: 'translateX(-50%)',
-                animation: 'fadeInUp 0.4s ease-in-out 0.5s both'
-              }} className="text-black text-sm bg-white px-5 py-2.5 rounded-lg max-w-2xl text-center backdrop-blur-sm shadow-lg border border-black transition-all duration-300">
-                {lightboxImages[lightboxIndex]?.alt}
-                </div>
-            </div>
-          </div>
-        )}
+            styles={{
+              container: {
+                backgroundColor: "rgba(0, 0, 0, .8)",
+                backdropFilter: "blur(4px)",
+              },
+            }}
+          />
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl mb-4">Featured Projects</h2>
           <p className="text-muted-foreground max-w-3xl mx-auto">
@@ -528,8 +268,8 @@ export function Projects() {
 
         {/* Featured Projects */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {highlightedRepos.length > 0 ? (
-            highlightedRepos.map((repo) => (
+          {featuredRepos.length > 0 ? (
+            featuredRepos.map((repo) => (
               <Card key={repo.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
                 {repo.name.toLowerCase() === "uvt" ? (
                   <ShowcaseCarousel
@@ -603,46 +343,11 @@ export function Projects() {
               </Card>
             ))
           ) : (
-            featuredProjects.map((project, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
-                <div className="relative overflow-hidden">
-                  <ImageWithFallback 
-                    src={project.image} 
-                    alt={project.title}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <div className="flex space-x-4">
-                      <Button size="sm" variant="secondary" asChild>
-                        <a href={project.demo} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          Demo
-                        </a>
-                      </Button>
-                      <Button size="sm" variant="secondary" asChild>
-                        <a href={project.github} target="_blank" rel="noopener noreferrer">
-                          <Github className="h-4 w-4 mr-2" />
-                          Code
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-lg">{project.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4 text-sm">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech, techIndex) => (
-                      <Badge key={techIndex} variant="outline" className="text-xs">
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+            <Card className="md:col-span-2 lg:col-span-3">
+              <CardContent className="py-10 text-center text-muted-foreground">
+                Featured repositories are unavailable right now.
+              </CardContent>
+            </Card>
           )}
         </div>
 

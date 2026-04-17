@@ -1,0 +1,81 @@
+{
+  "project": {
+    "name": "Ryori",
+    "company": "ALTTOS Innovations Corporations",
+    "location": "Phase 4 Blk69, Brgy, Lot3 Deca Homes Rd, Tugbok, Davao City, Davao del Sur",
+    "role": "Software Developer Intern",
+    "period": "Present",
+    "type": "Cross-Platform Mobile Application",
+    "ceo": "Francis Albores"
+  },
+  "missionStatement": {
+    "primary": "Our mission is to enhance the dining experience through a nationwide QR code ordering and POS system for small and medium restaurants. We streamline operations, simplify ordering, and support entrepreneurs in delivering efficient, high-quality service. Beyond technology, we promote a culture of excellence, inclusivity, and responsible growth.",
+    "secondary": "Our mission is to establish a nationwide QR Code ordering system that serves food and beverage businesses of all sizes—small, medium, or large. We aim to address the common challenges faced by diners, ensuring every customer leaves with a smile. By providing innovative tools, we empower entrepreneurs to confidently venture into the food and beverage industry, helping them enhance their operations and customer experience. Our ultimate goal is to shape a future with exceptional service standards in the food and beverage sector."
+  },
+  "visionStatement": "To revolutionize and empower SME restaurants through seamless digital solutions that make the dining experience and management more efficient for all.",
+  "coreValues": [
+    {
+      "name": "Innovation",
+      "description": "Embrace cutting-edge technology to deliver unmatched solutions."
+    },
+    {
+      "name": "Reliability",
+      "description": "Provide a dependable platform for businesses and customers alike."
+    },
+    {
+      "name": "Simplicity",
+      "description": "Focus on user-friendly, intuitive design."
+    },
+    {
+      "name": "Community",
+      "description": "Build lasting relationships with our partners, customers, and users."
+    },
+    {
+      "name": "Empowerment",
+      "description": "Help businesses grow and succeed through accessible tools and insights."
+    }
+  ],
+  "audience": {
+    "primary": [
+      "Restaurant owners and managers who want to streamline operations and enhance the customer dining experience.",
+      "Food business entrepreneurs looking for cost-effective and scalable solutions."
+    ],
+    "secondary": [
+      "Tech-savvy diners who value a smooth and rewarding dining experience.",
+      "Marketing agencies and consultants focused on the food and beverage industry."
+    ]
+  },
+  "features": [
+    "QR Code Ordering System",
+    "Point of Sale (POS) System",
+    "Real-time Order Tracking",
+    "Menu Management",
+    "Sales Analytics and Reporting",
+    "Customer Management",
+    "Digital Payment Integration",
+    "Kitchen Display System"
+  ],
+  "screenshots": [
+    "dashboard.png",
+    "menu.png",
+    "reports.png",
+    "dining.png",
+    "orderSummary1.png",
+    "orderSummary2.png",
+    "orderReceipt1.png",
+    "orderReceipt2.png",
+    "sales.png",
+    "tableOrders.png",
+    "archivedOrders.png",
+    "completedOrders.png",
+    "makeOrder1.png",
+    "makeOrder2.png",
+    "checkoutOrder.png"
+  ],
+  "technologies": {
+    "Frontend": ["React Native", "TypeScript", "Redux"],
+    "Backend": ["NestJS", "MongoDB"],
+    "Storage": ["MMKV", "Watermelon DB"],
+    "Other": ["JSONSchema", "Git", "TanstackQuery"]
+  }
+}

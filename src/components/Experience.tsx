@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, ExternalLink } from "lucide-react";
 
 export function Experience() {
   const experiences = [
@@ -19,12 +19,11 @@ export function Experience() {
       title: "Software Developer Intern",
       company: "ALTTOS Innovations Corporations",
       location: "Phase 4 Blk69, Brgy, Lot3 Deca Homes Rd, Tugbok, Davao City, Davao del Sur",
-      period: "Present",
+      period: "January 13, 2026 - March 25, 2026",
       description: [
         "Developing a cross-platform mobile application for the company's main product using React Native.",
         "Implementing efficient local data storage solutions using MMKV and Watermelon DB to enhance app performance and user experience.",
         "Collaborating with the backend team to integrate MongoDB databases, ensuring seamless data flow and synchronization within the application."
-        
       ],
       technologies: ["React Native", "MMKV", "MongoDB", "Watermelon DB", "JSONSchema", "TypeScript","NestJS", "Next.js", "Redux"]
     }
@@ -35,18 +34,28 @@ export function Experience() {
       degree: "Bachelor of Science in Information Technology",
       school: "University of Immaculate Conception (Father Selga Campus)",
       location: "3J92+W3V, 297 A. Pichon St, Poblacion District, Davao City, Davao del Sur",
-      period: "2021 - Present",
-      details: ""
+      period: "2021 - 2026",
+      details: "Loyalty Awardee from the RVM institution (2015-2026), Dean's Lister (2025, 1st Semester), and Graduate in 2026."
     }
   ];
 
+  const scrollToSectionWithOffset = (sectionId: string) => {
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+
+    const header = document.querySelector("header") as HTMLElement | null;
+    const headerHeight = header ? header.offsetHeight : 0;
+    const targetY = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - 4;
+    window.scrollTo({ top: targetY, behavior: "smooth" });
+  };
+
   return (
-    <section id="experience" className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
+    <section id="experience" className="py-2 px-4 sm:px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl mb-4">Experience</h2>
           <p className="text-muted-foreground max-w-3xl mx-auto">
-            My professional journey in software development, building products that make a difference 
+            My professional journey in software development, building products that make a difference
             and working with amazing teams along the way.
           </p>
         </div>
@@ -59,34 +68,52 @@ export function Experience() {
               {experiences.map((exp, index) => (
                 <Card key={index} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <CardTitle className="text-xl break-words max-w-full">{exp.title}</CardTitle>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-muted-foreground w-full">
-                      <span className="font-medium break-words max-w-full">{exp.company}</span>
-                      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-sm w-full">
-                        <div className="flex items-center gap-1 min-w-0 max-w-full truncate">
-                          <MapPin className="h-4 w-4 shrink-0" />
-                          <span className="truncate block max-w-xs sm:max-w-[200px] md:max-w-[300px] lg:max-w-[250px] xl:max-w-[300px]" title={exp.location}>{exp.location}</span>
-                        </div>
-                        <div className="flex items-center gap-1 min-w-0">
-                          <Calendar className="h-4 w-4 shrink-0" />
-                          <span className="truncate block max-w-[120px]" title={exp.period}>{exp.period}</span>
-                        </div>
+                    <CardTitle className="text-xl">{exp.title}</CardTitle>
+                    <div className="space-y-2 text-muted-foreground mt-2">
+                      <div className="font-medium">{exp.company}</div>
+                      <div className="flex items-center gap-1 text-sm">
+                        <MapPin className="h-4 w-4 shrink-0" />
+                        <span className="truncate max-w-xs sm:max-w-[200px] md:max-w-[300px] lg:max-w-[250px] xl:max-w-[300px]" title={exp.location}>
+                          {exp.location}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm">
+                        <Calendar className="h-4 w-4 shrink-0" />
+                        <span className="truncate max-w-[120px]" title={exp.period}>
+                          {exp.period}
+                        </span>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="list-disc list-inside space-y-2 mb-4 text-muted-foreground break-words">
+                  <CardContent className="space-y-4">
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                       {exp.description.map((item, itemIndex) => (
-                        <li key={itemIndex} className="break-words max-w-full">{item}</li>
+                        <li key={itemIndex}>
+                          {item}
+                        </li>
                       ))}
                     </ul>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mt-4">
                       {exp.technologies.map((tech, techIndex) => (
-                        <Badge key={techIndex} variant="secondary" className="text-xs break-words max-w-full">
+                        <Badge key={techIndex} variant="secondary" className="text-xs">
                           {tech}
                         </Badge>
                       ))}
                     </div>
+                    {exp.company === "ALTTOS Innovations Corporations" && (
+                      <div className="border-t pt-4 mt-6" style={{ paddingTop: 13, cursor: "pointer" }}>
+                        <button
+                          onClick={() => {
+                            scrollToSectionWithOffset("ryori");
+                          }}
+                          className="text-sm text-primary flex items-center gap-1 font-medium hover:text-primary/80 transition-colors duration-300"
+                          style={{ cursor: "pointer" }}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Scroll down to view the detailed Ryori project showcase
+                        </button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -100,23 +127,27 @@ export function Experience() {
               {education.map((edu, index) => (
                 <Card key={index}>
                   <CardHeader>
-                    <CardTitle className="text-lg break-words max-w-full">{edu.degree}</CardTitle>
-                    <div className="text-muted-foreground">
-                      <div className="font-medium break-words max-w-full">{edu.school}</div>
-                      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-sm mt-1 w-full">
-                        <div className="flex items-center gap-1 min-w-0 max-w-full truncate">
+                    <CardTitle className="text-lg">{edu.degree}</CardTitle>
+                    <div className="text-muted-foreground mt-2">
+                      <div className="font-medium">{edu.school}</div>
+                      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-sm mt-1">
+                        <div className="flex items-center gap-1">
                           <MapPin className="h-4 w-4 shrink-0" />
-                          <span className="truncate block max-w-xs sm:max-w-[200px] md:max-w-[300px] lg:max-w-[250px] xl:max-w-[300px]" title={edu.location}>{edu.location}</span>
+                          <span className="truncate max-w-xs sm:max-w-[200px] md:max-w-[300px] lg:max-w-[250px] xl:max-w-[300px]" title={edu.location}>
+                            {edu.location}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-1 min-w-0">
+                        <div className="flex items-center gap-1 mt-2 sm:mt-0">
                           <Calendar className="h-4 w-4 shrink-0" />
-                          <span className="truncate block max-w-[120px]" title={edu.period}>{edu.period}</span>
+                          <span className="truncate max-w-[120px]" title={edu.period}>
+                            {edu.period}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground break-words max-w-full">{edu.details}</p>
+                    {edu.details && <p className="text-sm text-muted-foreground">{edu.details}</p>}
                   </CardContent>
                 </Card>
               ))}

@@ -1,17 +1,71 @@
 import { Button } from "./ui/button";
 import { Menu, X, Github, Linkedin, Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const linkedInUrl = "https://www.linkedin.com/in/kobe-j-corpuz";
+  const navItems = useMemo(
+    () => [
+      { href: "#about", label: "About" },
+      { href: "#skills", label: "Skills" },
+      { href: "#projects", label: "Projects" },
+      { href: "#experience", label: "Experience" },
+      { href: "#contact", label: "Contact" },
+    ],
+    [],
+  );
+  const [activeHref, setActiveHref] = useState(navItems[0]?.href ?? "");
 
-  const navItems = [
-    { href: "#about", label: "About" },
-    { href: "#skills", label: "Skills" },
-    { href: "#projects", label: "Projects" },
-    { href: "#experience", label: "Experience" },
-    { href: "#contact", label: "Contact" },
-  ];
+  const getHeaderHeight = () => {
+    const header = document.querySelector("header");
+    return header instanceof HTMLElement ? header.offsetHeight : 0;
+  };
+
+  useEffect(() => {
+    const updateActiveHref = () => {
+      const headerHeight = getHeaderHeight();
+      const scrollAnchor = window.scrollY + headerHeight + 12;
+      let currentHref = navItems[0]?.href ?? "";
+
+      for (const item of navItems) {
+        const id = item.href.replace("#", "");
+        const section = document.getElementById(id);
+        if (section && section.offsetTop <= scrollAnchor) {
+          currentHref = item.href;
+        }
+      }
+
+      const isNearPageBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 4;
+
+      if (isNearPageBottom && navItems.length > 0) {
+        currentHref = navItems[navItems.length - 1].href;
+      }
+
+      setActiveHref((previousHref) =>
+        previousHref === currentHref ? previousHref : currentHref,
+      );
+    };
+
+    updateActiveHref();
+    window.addEventListener("scroll", updateActiveHref, { passive: true });
+    window.addEventListener("resize", updateActiveHref);
+
+    return () => {
+      window.removeEventListener("scroll", updateActiveHref);
+      window.removeEventListener("resize", updateActiveHref);
+    };
+  }, [navItems]);
+
+  const getNavLinkClassName = (href: string, isMobile: boolean) => {
+    const baseClassName = isMobile
+      ? "header-nav-link block px-3 py-2 rounded-md transition-colors"
+      : "header-nav-link px-3 py-2 rounded-md transition-colors";
+
+    return `${baseClassName}${activeHref === href ? " is-active" : ""}`;
+  };
 
   // Smooth scroll with header offset
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -19,10 +73,10 @@ export function Header() {
     const el = document.getElementById(id);
     if (el) {
       e.preventDefault();
-      const header = document.querySelector('header');
-      const headerHeight = header ? (header as HTMLElement).offsetHeight : 0;
+      const headerHeight = getHeaderHeight();
       const y = el.getBoundingClientRect().top + window.pageYOffset - headerHeight - 4; // 4px gap
       window.scrollTo({ top: y, behavior: 'smooth' });
+      setActiveHref(href);
     }
   };
 
@@ -30,21 +84,14 @@ export function Header() {
     <header className="fixed top-0 w-full bg-background/80 backdrop-blur-sm border-b border-border z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <a
               href="#"
               className="text-xl font-medium"
               onClick={e => {
                 e.preventDefault();
-                const header = document.querySelector('header');
-                const headerHeight = header ? (header as HTMLElement).offsetHeight : 0;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                // Optionally, offset for header height if needed
-                if (headerHeight > 0) {
-                  setTimeout(() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }, 10);
-                }
+                setActiveHref(navItems[0]?.href ?? "");
               }}
             >
               Portfolio
@@ -58,7 +105,7 @@ export function Header() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="text-foreground hover:text-primary px-3 py-2 rounded-md transition-colors"
+                  className={getNavLinkClassName(item.href, false)}
                   onClick={e => handleNavClick(e, item.href)}
                 >
                   {item.label}
@@ -69,10 +116,10 @@ export function Header() {
 
           {/* Social Links */}
           <div className="hidden md:flex items-center space-x-4">
-            <a href="https://github.com/lnxexu" className="text-foreground hover:text-primary transition-colors">
+            <a href="https://github.com/lnxexu" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary transition-colors">
               <Github className="h-5 w-5" />
             </a>
-            <a href="https://www.linkedin.com/in/kobe-j-corpuz-4645252a3/" className="text-foreground hover:text-primary transition-colors">
+            <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary transition-colors">
               <Linkedin className="h-5 w-5" />
             </a>
             <a href="mailto:kcorpuz_220000002183@uic.edu.ph" className="text-foreground hover:text-primary transition-colors">
@@ -100,7 +147,7 @@ export function Header() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="block px-3 py-2 text-foreground hover:text-primary rounded-md transition-colors"
+                  className={getNavLinkClassName(item.href, true)}
                   onClick={e => {
                     handleNavClick(e, item.href);
                     setIsMenuOpen(false);
@@ -110,10 +157,10 @@ export function Header() {
                 </a>
               ))}
               <div className="flex items-center space-x-4 px-3 py-2">
-                <a href="https://github.com/lnxexu" className="text-foreground hover:text-primary transition-colors">
+                <a href="https://github.com/lnxexu" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary transition-colors">
                   <Github className="h-5 w-5" />
                 </a>
-                <a href="https://www.linkedin.com/in/kobe-j-corpuz" className="text-foreground hover:text-primary transition-colors">
+                <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary transition-colors">
                   <Linkedin className="h-5 w-5" />
                 </a>
                 <a href="mailto:kcorpuz_220000002183@uic.edu.ph" className="text-foreground hover:text-primary transition-colors">

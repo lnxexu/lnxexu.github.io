@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Facebook } from "lucide-react";
+import { Mail, Phone, MapPin, Github, Linkedin, Facebook } from "lucide-react";
 import { useState } from "react";
 
 export function Contact() {
@@ -12,14 +12,22 @@ export function Contact() {
     subject: '',
     message: ''
   });
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    alert('Thank you for your message! I\'ll get back to you soon.');
+    setSubmitStatus("sending");
+    try {
+      const subject = encodeURIComponent(`[Portfolio] ${formData.subject}`);
+      const body = encodeURIComponent(
+        `Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}`,
+      );
+      window.location.href = `mailto:kcorpuz_220000002183@uic.edu.ph?subject=${subject}&body=${body}`;
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setSubmitStatus("sent");
+    } catch {
+      setSubmitStatus("error");
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -27,6 +35,9 @@ export function Contact() {
       ...prev,
       [e.target.name]: e.target.value
     }));
+    if (submitStatus !== "idle") {
+      setSubmitStatus("idle");
+    }
   };
 
   const contactInfo = [
@@ -146,8 +157,18 @@ export function Contact() {
                   />
                 </div>
                 <Button type="submit" className="w-full">
-                  Send Message
+                  {submitStatus === "sending" ? "Opening Email..." : "Send Message"}
                 </Button>
+                {submitStatus === "sent" && (
+                  <p className="text-sm text-green-600" role="status" aria-live="polite">
+                    Your email app has been opened with your message draft.
+                  </p>
+                )}
+                {submitStatus === "error" && (
+                  <p className="text-sm text-red-500" role="status" aria-live="polite">
+                    Unable to open your email app. Please email me directly.
+                  </p>
+                )}
               </form>
             </CardContent>
           </Card>
