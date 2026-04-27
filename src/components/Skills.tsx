@@ -3,33 +3,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 export function Skills() {
   const skillCategories = [
-    {
-      title: "Frontend",
-      skills: [
-        "React", "TypeScript", "Next.js", "Vue.js", "MMKV", "Redux",
-        "Watermelon DB", "JavaScript", "HTML5", "CSS3", "Responsive Design"
-      ]
-    },
-    {
-      title: "Backend",
-      skills: [
-        "Node.js", "Python", "Django", "FastAPI", "NoSQL",
-        "PostgreSQL", "MongoDB", "Redis", "REST APIs", "GraphQL", "NestJS"
-      ]
-    },
-    {
-      title: "DevOps & Tools",
-      skills: [
-         "Git", "GitHub Actions", "Cypress", "Vite", "ESLint", "Prettier", "LucidChart"
-      ]
-    },
-    {
-      title: "Mobile & Other",
-      skills: [
-        "React Native", "Flutter", "Figma", "Agile", "Supabase", "Vercel", "Netlify", "Railway"
-      ]
-    }
-  ];
+      {
+        title: "Frontend",
+        skills: [
+          "React", "TypeScript", "Next.js", "Vue.js", "Redux", "JavaScript", "HTML5", "CSS3", "Responsive Design"
+        ]
+      },
+      {
+        title: "Backend & Databases",
+        skills: [
+          "Node.js", "Python", "Django", "FastAPI", "NestJS", "REST APIs", "NoSQL", "PostgreSQL", "MongoDB", "Redis"
+        ]
+      },
+      {
+        title: "Mobile",
+        skills: [
+          "React Native", "Flutter", "MMKV", "Watermelon DB"
+        ]
+      },
+      {
+        title: "DevOps & Tools",
+        skills: [
+          "Git", "GitHub Actions", "Cypress", "Vite", "ESLint", "Prettier", "LucidChart", "Supabase", "Vercel", "Netlify", "Railway"
+        ]
+      }
+    ];
 
   return (
     <section id="skills" className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
@@ -58,8 +56,7 @@ export function Skills() {
                     >
                       {skill}
                     </Badge>
-                  ))}
-                </div>
+                  ))}                </div>
               </CardContent>
             </Card>
           ))}
